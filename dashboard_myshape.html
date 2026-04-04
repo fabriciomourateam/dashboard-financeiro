@@ -861,21 +861,55 @@
     </table>
   </div>
 
-  <!-- Calculadora de CAC integrada -->
+  <!-- Calculadora de CAC com funil real -->
   <div class="table-card" style="margin-bottom:20px">
-    <div class="chart-title">Calculadora Integrada — Custo Real por Aluno Fechado</div>
-    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Ajuste os parâmetros abaixo. O CAC Real considera o CPL + a taxa de conversão do closer (70%).</p>
+    <div class="chart-title">Calculadora de CAC — Funil Real (preencha os dados do mês)</div>
+    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Preencha os campos em azul com os dados reais do mês. O CAC e o funil calculam automaticamente.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
       <div>
-        <div class="sim-row"><span class="sim-label">CPL Google (atual)</span><input class="cac-input" id="tCplGoogle" type="number" value="16.43" step="0.1" oninput="calcTrafegoCAC()"></div>
-        <div class="sim-row"><span class="sim-label">CPL Meta (atual)</span><input class="cac-input" id="tCplMeta" type="number" value="135" step="1" oninput="calcTrafegoCAC()"></div>
-        <div class="sim-row"><span class="sim-label">Taxa agendamento SDR (%)</span><input class="cac-input" id="tSdr" type="number" value="17.5" step="0.5" oninput="calcTrafegoCAC()"></div>
-        <div class="sim-row"><span class="sim-label">Conversão do closer (%)</span><input class="cac-input" id="tConversao" type="number" value="70" step="1" oninput="calcTrafegoCAC()"></div>
+        <div style="font-size:11px;color:#3b82f6;text-transform:uppercase;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #334155">📊 Dados do mês atual</div>
+        <div class="sim-row"><span class="sim-label">Budget Google (R$)</span><input class="cac-input" id="tBudgetGoogle" type="number" value="30000" step="1000" oninput="calcTrafegoCAC()"></div>
+        <div class="sim-row"><span class="sim-label">CPL Google (R$)</span><input class="cac-input" id="tCplGoogle" type="number" value="16.43" step="0.1" oninput="calcTrafegoCAC()"></div>
+
+        <div style="font-size:11px;color:#f59e0b;text-transform:uppercase;font-weight:700;margin:16px 0 12px;padding-bottom:6px;border-bottom:1px solid #334155">📞 Funil de vendas</div>
+        <div class="sim-row">
+          <span class="sim-label">Calls agendadas pelo SDR</span>
+          <input class="cac-input" id="tCallsAgendadas" type="number" value="320" step="10" oninput="calcTrafegoCAC()">
+        </div>
+        <div class="sim-row">
+          <span class="sim-label" style="color:#ef4444">No-shows (não apareceram)</span>
+          <input class="cac-input" id="tNoShow" type="number" value="220" step="10" oninput="calcTrafegoCAC()" style="border-color:#ef4444;color:#ef4444">
+        </div>
+        <div class="sim-row">
+          <span class="sim-label">Calls realizadas</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="cac-input" id="tCallsRealizadas" type="number" value="100" step="5" oninput="calcTrafegoCAC()">
+            <span id="tShowRate" style="font-size:11px;color:#64748b;white-space:nowrap"></span>
+          </div>
+        </div>
+        <div class="sim-row">
+          <span class="sim-label">Fechamentos pelo closer</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="cac-input" id="tFechamentos" type="number" value="70" step="5" oninput="calcTrafegoCAC()">
+            <span id="tCloserRate" style="font-size:11px;color:#64748b;white-space:nowrap"></span>
+          </div>
+        </div>
+
+        <div style="font-size:11px;color:#10b981;text-transform:uppercase;font-weight:700;margin:16px 0 12px;padding-bottom:6px;border-bottom:1px solid #334155">💰 Receita</div>
         <div class="sim-row"><span class="sim-label">Ticket médio da venda (R$)</span><input class="cac-input" id="tTicket" type="number" value="1800" step="100" oninput="calcTrafegoCAC()"></div>
-        <div class="sim-row"><span class="sim-label">Budget Google mensal (R$)</span><input class="cac-input" id="tBudgetGoogle" type="number" value="24000" step="1000" oninput="calcTrafegoCAC()"></div>
-        <div class="sim-row"><span class="sim-label">Budget Meta mensal (R$)</span><input class="cac-input" id="tBudgetMeta" type="number" value="3000" step="500" oninput="calcTrafegoCAC()"></div>
+        <div class="sim-row"><span class="sim-label">Taxa de renovação (%)</span><input class="cac-input" id="tRenovacao" type="number" value="40" step="5" oninput="calcTrafegoCAC()"></div>
+        <div class="sim-row"><span class="sim-label">Valor da renovação (R$)</span><input class="cac-input" id="tValorRen" type="number" value="1200" step="100" oninput="calcTrafegoCAC()"></div>
       </div>
-      <div id="tTrafegoResult" style="background:#0f172a;border-radius:8px;padding:20px;"></div>
+
+      <div>
+        <!-- Funil visual -->
+        <div style="background:#0f172a;border-radius:8px;padding:16px;margin-bottom:16px">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:12px">Funil do mês</div>
+          <div id="tFunilVisual"></div>
+        </div>
+        <!-- Resultado CAC -->
+        <div id="tTrafegoResult" style="background:#0f172a;border-radius:8px;padding:16px;"></div>
+      </div>
     </div>
   </div>
 
@@ -1765,72 +1799,102 @@ function renderTrafegoCharts() {
 }
 
 function calcTrafegoCAC() {
-  const cplGoogle = +document.getElementById('tCplGoogle').value || 16.43;
-  const cplMeta   = +document.getElementById('tCplMeta').value || 135;
-  const sdr       = (+document.getElementById('tSdr').value || 17.5) / 100;
-  const conversao = (+document.getElementById('tConversao').value || 70) / 100;
-  const ticket    = +document.getElementById('tTicket').value || 1800;
-  const budgetG   = +document.getElementById('tBudgetGoogle').value || 24000;
-  const budgetM   = +document.getElementById('tBudgetMeta').value || 3000;
+  const budgetG        = +document.getElementById('tBudgetGoogle').value  || 30000;
+  const cplGoogle      = +document.getElementById('tCplGoogle').value     || 16.43;
+  const callsAgend     = +document.getElementById('tCallsAgendadas').value|| 320;
+  const noShow         = +document.getElementById('tNoShow').value        || 220;
+  const callsReal      = +document.getElementById('tCallsRealizadas').value|| 100;
+  const fechamentos    = +document.getElementById('tFechamentos').value   || 70;
+  const ticket         = +document.getElementById('tTicket').value        || 1800;
+  const renovacaoPct   = (+document.getElementById('tRenovacao').value    || 40) / 100;
+  const valorRen       = +document.getElementById('tValorRen').value      || 1200;
 
-  // Funil completo: lead → SDR agenda → closer fecha
-  const custoPorChamadaG = cplGoogle / sdr;
-  const custoPorChamadaM = cplMeta   / sdr;
-  const cacG = custoPorChamadaG / conversao;
-  const cacM = custoPorChamadaM / conversao;
+  // Taxas derivadas dos dados reais
+  const leadsGerados   = budgetG / cplGoogle;
+  const taxaAgend      = callsAgend / leadsGerados;           // % leads que SDR agenda
+  const taxaShowUp     = callsReal  / Math.max(callsAgend,1); // % agendados que aparecem
+  const taxaCloser     = fechamentos / Math.max(callsReal,1); // % realizadas que fecham
+  const taxaFunilTotal = fechamentos / Math.max(leadsGerados,1);// lead → venda
 
-  // Volume mensal
-  const leadsG     = budgetG / cplGoogle;
-  const leadsM     = budgetM / cplMeta;
-  const chamadasG  = leadsG  * sdr;
-  const chamadasM  = leadsM  * sdr;
-  const vendasG    = chamadasG * conversao;
-  const vendasM    = chamadasM * conversao;
+  // Custo em cada etapa
+  const custoPorlead   = cplGoogle;
+  const custoPorAgend  = budgetG / Math.max(callsAgend,1);
+  const custoPorCall   = budgetG / Math.max(callsReal,1);
+  const cac            = budgetG / Math.max(fechamentos,1);   // CAC real
 
-  // LTV simplificado: ticket anual + 40% renovam × 1.200
-  const ltv = ticket + 0.40 * 1200;
-  const roiLtvG = ltv / cacG;
-  const roiLtvM = ltv / cacM;
+  // LTV
+  const ltv    = ticket + renovacaoPct * valorRen;
+  const ltvCac = ltv / cac;
 
-  const receitaG = vendasG * ticket;
-  const receitaM = vendasM * ticket;
-  const roiG = receitaG / budgetG;
-  const roiM = receitaM / budgetM;
+  // Atualizar badges laterais
+  const showEl   = document.getElementById('tShowRate');
+  const closerEl = document.getElementById('tCloserRate');
+  if (showEl)   showEl.textContent   = `${(taxaShowUp*100).toFixed(0)}% show-up`;
+  if (closerEl) closerEl.textContent = `${(taxaCloser*100).toFixed(0)}% conv.`;
 
-  const corG  = cacG  < 300 ? '#10b981' : cacG  < 600 ? '#f59e0b' : '#ef4444';
-  const corM  = cacM  < 300 ? '#10b981' : cacM  < 600 ? '#f59e0b' : '#ef4444';
-  const corRG = roiLtvG >= 5 ? '#10b981' : roiLtvG >= 3 ? '#f59e0b' : '#ef4444';
-  const corRM = roiLtvM >= 5 ? '#10b981' : roiLtvM >= 3 ? '#f59e0b' : '#ef4444';
+  // Cor do no-show — quanto mais alto, mais vermelho
+  const noShowPct = 1 - taxaShowUp;
+  const corNS = noShowPct > 0.6 ? '#ef4444' : noShowPct > 0.4 ? '#f59e0b' : '#10b981';
+  const corCAC = cac < 300 ? '#10b981' : cac < 600 ? '#f59e0b' : '#ef4444';
+  const corLTV = ltvCac >= 5 ? '#10b981' : ltvCac >= 3 ? '#f59e0b' : '#ef4444';
 
-  const bloco = (titulo, leads, chamadas, vendas, cpl, custCham, cac, ltvcac, roi, corCac, corLtv) => `
-    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #334155">
-      <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:10px">${titulo}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-        <div><div style="font-size:10px;color:#64748b">Leads/mês</div><div style="font-size:18px;font-weight:800;color:#f1f5f9">${Math.round(leads)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">Chamadas SDR</div><div style="font-size:18px;font-weight:800;color:#3b82f6">${Math.round(chamadas)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">Vendas/mês</div><div style="font-size:18px;font-weight:800;color:#10b981">${Math.round(vendas)}</div></div>
+  // Funil visual
+  const etapas = [
+    { label: 'Leads gerados',       val: Math.round(leadsGerados), pct: 100,                          cor: '#3b82f6',  custo: cplGoogle },
+    { label: 'Calls agendadas SDR', val: callsAgend,               pct: taxaAgend*100,                cor: '#8b5cf6',  custo: custoPorAgend },
+    { label: 'No-show (perdidos)',   val: noShow,                   pct: (noShow/leadsGerados)*100,    cor: '#ef4444',  custo: null, perda: true },
+    { label: 'Calls realizadas',     val: callsReal,                pct: (callsReal/leadsGerados)*100, cor: '#f59e0b',  custo: custoPorCall },
+    { label: 'Fechamentos',          val: fechamentos,              pct: taxaFunilTotal*100,           cor: '#10b981',  custo: cac },
+  ];
+
+  const funilEl = document.getElementById('tFunilVisual');
+  if (funilEl) {
+    funilEl.innerHTML = etapas.map(e => `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <span style="font-size:12px;color:${e.perda ? '#ef4444' : '#94a3b8'}">${e.perda ? '⛔ ' : ''}${e.label}</span>
+          <span style="font-size:14px;font-weight:800;color:${e.cor}">${e.val}${e.custo != null ? ` <span style="font-size:10px;color:#64748b;font-weight:400">(R$${e.custo.toFixed(0)}/un)</span>` : ''}</span>
+        </div>
+        <div style="height:6px;background:#1e293b;border-radius:3px">
+          <div style="height:100%;width:${Math.min(e.pct,100)}%;background:${e.cor};border-radius:3px;transition:width 0.4s ease"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Resultado principal
+  document.getElementById('tTrafegoResult').innerHTML = `
+    <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:12px">Resultado do mês</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:#1e293b;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">CAC REAL</div>
+        <div style="font-size:28px;font-weight:800;color:${corCAC}">R$ ${Math.round(cac)}</div>
+        <div style="font-size:10px;color:#64748b">por aluno fechado</div>
       </div>
+      <div style="background:#1e293b;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">LTV / CAC</div>
+        <div style="font-size:28px;font-weight:800;color:${corLTV}">${ltvCac.toFixed(1)}x</div>
+        <div style="font-size:10px;color:#64748b">LTV = R$ ${Math.round(ltv).toLocaleString('pt-BR')}</div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #334155;padding-top:12px;margin-bottom:12px">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div><div style="font-size:10px;color:#64748b">Custo/chamada</div><div style="font-size:16px;font-weight:800;color:#f59e0b">R$ ${custCham.toFixed(0)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">CAC completo</div><div style="font-size:16px;font-weight:800;color:${corCac}">R$ ${cac.toFixed(0)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">LTV/CAC</div><div style="font-size:16px;font-weight:800;color:${corLtv}">${ltvcac.toFixed(1)}x</div></div>
+        <div><div style="font-size:10px;color:#64748b">Custo/lead</div><div style="font-size:15px;font-weight:700;color:#3b82f6">R$ ${cplGoogle.toFixed(2)}</div></div>
+        <div><div style="font-size:10px;color:#64748b">Custo/call feita</div><div style="font-size:15px;font-weight:700;color:#f59e0b">R$ ${Math.round(custoPorCall)}</div></div>
+        <div><div style="font-size:10px;color:#64748b">Conversão total</div><div style="font-size:15px;font-weight:700;color:#10b981">${(taxaFunilTotal*100).toFixed(1)}%</div></div>
       </div>
-    </div>`;
+    </div>
 
-  document.getElementById('tTrafegoResult').innerHTML =
-    bloco('Google Ads', leadsG, chamadasG, vendasG, cplGoogle, custoPorChamadaG, cacG, roiLtvG, roiG, corG, corRG) +
-    bloco('Meta Ads (Lead Gen)', leadsM, chamadasM, vendasM, cplMeta, custoPorChamadaM, cacM, roiLtvM, roiM, corM, corRM) +
-    `<div>
-      <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px">Consolidado</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><div style="font-size:10px;color:#64748b">Total vendas/mês</div><div style="font-size:22px;font-weight:800;color:#10b981">${Math.round(vendasG+vendasM)} alunos</div></div>
-        <div><div style="font-size:10px;color:#64748b">Receita/mês (caixa)</div><div style="font-size:22px;font-weight:800;color:#10b981">R$ ${Math.round(receitaG+receitaM).toLocaleString('pt-BR')}</div></div>
-      </div>
-      <div style="margin-top:10px;font-size:11px;color:#64748b;line-height:1.6">
-        LTV usado = R$ ${ltv.toLocaleString('pt-BR')} (ticket ${ticket.toLocaleString('pt-BR')} + 40% renovam × 1.200)<br>
-        Funil: lead → SDR ${(sdr*100).toFixed(1)}% agenda → closer ${(conversao*100).toFixed(0)}% fecha<br>
-        Receita ≠ caixa imediato (Asaas parcelado entra em 12 meses)
-      </div>
+    <div style="background:#7f1d1d33;border:1px solid #ef444444;border-radius:8px;padding:12px;margin-bottom:10px">
+      <div style="font-size:11px;color:#fca5a5;font-weight:700;margin-bottom:4px">⛔ No-show: ${noShow} calls perdidas (${(noShowPct*100).toFixed(0)}%)</div>
+      <div style="font-size:11px;color:#94a3b8">Custo desperdiçado: <strong style="color:#ef4444">R$ ${Math.round(noShow * custoPorAgend).toLocaleString('pt-BR')}</strong> em calls que não aconteceram</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:4px">Se o show-up subir para 50%: <strong style="color:#f59e0b">${Math.round(callsAgend*0.5)} calls</strong> → <strong style="color:#f59e0b">${Math.round(callsAgend*0.5*taxaCloser)} vendas</strong> → CAC <strong style="color:#f59e0b">R$ ${Math.round(budgetG/(callsAgend*0.5*taxaCloser))}</strong></div>
+    </div>
+
+    <div style="font-size:11px;color:#64748b;line-height:1.7">
+      LTV = R$ ${ticket.toLocaleString('pt-BR')} ticket + ${(renovacaoPct*100).toFixed(0)}% renovam × R$ ${valorRen.toLocaleString('pt-BR')}<br>
+      Budget R$ ${budgetG.toLocaleString('pt-BR')} → ${Math.round(leadsGerados)} leads → ${callsAgend} ag. → ${callsReal} calls → ${fechamentos} fechamentos
     </div>`;
 }
 
