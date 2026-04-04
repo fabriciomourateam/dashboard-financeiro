@@ -225,6 +225,7 @@
   <div class="nav-tab" onclick="showTab('simulador')">🔮 Simulador</div>
   <div class="nav-tab" onclick="showTab('cacltv')">📐 CAC & LTV</div>
   <div class="nav-tab" onclick="showTab('retencao')">🔄 Retenção</div>
+  <div class="nav-tab" onclick="showTab('asaas')">🏦 Asaas Live</div>
 </div>
 
 <div class="main">
@@ -1135,6 +1136,64 @@
   </div>
 </div>
 
+<!-- =================== ABA ASAAS LIVE =================== -->
+<div id="tab-asaas" class="tab-content">
+  <div class="section-title">🏦 Asaas — Dados em Tempo Real</div>
+
+  <div id="asaasStatus" class="alert amarelo">⏳ Carregando dados do Asaas...</div>
+
+  <!-- KPIs principais -->
+  <div class="kpi-grid" id="asaasKpis" style="display:none">
+    <div class="kpi-card verde">
+      <div class="kpi-label">Saldo Atual Asaas</div>
+      <div class="kpi-value" id="aSaldo">—</div>
+      <div class="kpi-sub">Conta Asaas agora</div>
+      <div class="kpi-change up" id="aSaldoSub">—</div>
+    </div>
+    <div class="kpi-card azul">
+      <div class="kpi-label">Recebido no Mês</div>
+      <div class="kpi-value" id="aRecebido">—</div>
+      <div class="kpi-sub" id="aRecebidoCount">—</div>
+      <div class="kpi-change neutral">Pagamentos confirmados</div>
+    </div>
+    <div class="kpi-card azul">
+      <div class="kpi-label">Cobranças Ativas</div>
+      <div class="kpi-value" id="aAtivas">—</div>
+      <div class="kpi-sub" id="aAtivasValor">—</div>
+      <div class="kpi-change neutral">Pendentes no futuro</div>
+    </div>
+  </div>
+
+  <!-- Recebíveis por mês -->
+  <div id="asaasRecebiveis" style="display:none">
+    <div class="section-title" style="margin-top:24px">📅 Parcelas a Receber — Próximos 4 Meses</div>
+    <div class="kpi-grid" id="asaasParcelaGrid"></div>
+    <div class="chart-card full" style="margin-top:16px">
+      <div class="chart-title">Previsão de Recebimentos Asaas (R$)</div>
+      <div class="chart-container" style="height:220px"><canvas id="chartAsaas"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Inadimplência — colapsável -->
+  <div id="asaasInad" style="display:none;margin-top:24px">
+    <button onclick="toggleInad()" style="background:#1e293b;border:1px solid #334155;color:#94a3b8;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:12px">
+      🔍 Ver inadimplência <span id="inadBadge"></span>
+    </button>
+    <div id="inadDetalhe" style="display:none">
+      <div class="kpi-card vermelho" style="max-width:320px">
+        <div class="kpi-label">Cobranças Vencidas</div>
+        <div class="kpi-value" id="aInadValor">—</div>
+        <div class="kpi-sub" id="aInadCount">—</div>
+        <div class="kpi-change down">Vencidas e não pagas</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="asaasRodape" style="display:none;margin-top:20px;font-size:11px;color:#334155;text-align:right">
+    Atualizado em: <span id="aTimestamp">—</span> · Dados direto da API Asaas · Atualiza a cada 5 min
+  </div>
+</div>
+
 </div><!-- /main -->
 
 <script>
@@ -1180,6 +1239,7 @@ function showTab(name) {
   document.querySelectorAll('.nav-tab').forEach(t => { if(t.textContent.toLowerCase().includes(name.replace('cacltv','cac').replace('retencao','reten').replace('trafego','tráf'))) t.classList.add('active'); });
   if (name === 'trafego') { renderTrafegoCharts(); calcTrafegoCAC(); }
   if (name === 'fluxo') { renderTabelaFluxo(); renderChartFluxo(); }
+  if (name === 'asaas') { carregarAsaas(); }
 }
 
 function mudarMes(mes) {
@@ -1996,6 +2056,97 @@ function renderChartFluxo() {
       }
     }
   });
+}
+
+// =================== ASAAS LIVE ===================
+let chartAsaas;
+const mesesPT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+function toggleInad() {
+  const el = document.getElementById('inadDetalhe');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function carregarAsaas() {
+  const statusEl = document.getElementById('asaasStatus');
+  try {
+    const res = await fetch('/api/asaas');
+    if (!res.ok) throw new Error(`Erro ${res.status}`);
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+
+    // Status
+    statusEl.style.display = 'none';
+    document.getElementById('asaasKpis').style.display = '';
+    document.getElementById('asaasRecebiveis').style.display = '';
+    document.getElementById('asaasInad').style.display = '';
+    document.getElementById('asaasRodape').style.display = '';
+
+    // KPIs
+    document.getElementById('aSaldo').textContent = fmt(d.saldo);
+    document.getElementById('aSaldoSub').textContent = 'Atualizado agora';
+    document.getElementById('aRecebido').textContent = fmt(d.recebidoMes.valor);
+    document.getElementById('aRecebidoCount').textContent = d.recebidoMes.count + ' pagamentos no mês';
+    document.getElementById('aAtivas').textContent = d.ativas.count + ' cobranças';
+    document.getElementById('aAtivasValor').textContent = fmt(d.ativas.valor) + ' no pipeline';
+
+    // Inadimplência
+    document.getElementById('inadBadge').textContent =
+      d.inadimplencia.count > 0 ? `(${d.inadimplencia.count} cobranças)` : '(nenhuma)';
+    document.getElementById('aInadValor').textContent = fmt(d.inadimplencia.valor);
+    document.getElementById('aInadCount').textContent = d.inadimplencia.count + ' cobranças vencidas';
+
+    // Parcelas por mês
+    const grid = document.getElementById('asaasParcelaGrid');
+    const cores = ['#3b82f6','#8b5cf6','#10b981','#f59e0b'];
+    grid.innerHTML = d.receber.map((m, i) => {
+      const [ano, mes] = m.mes.split('-');
+      const nomeMes = mesesPT[+mes - 1] + '/' + ano.slice(2);
+      return `<div class="kpi-card azul">
+        <div class="kpi-label">A receber — ${nomeMes}</div>
+        <div class="kpi-value" style="color:${cores[i]}">${fmt(m.valor)}</div>
+        <div class="kpi-sub">${m.count} cobranças pendentes</div>
+      </div>`;
+    }).join('');
+
+    // Gráfico
+    const ctx = document.getElementById('chartAsaas');
+    if (chartAsaas) chartAsaas.destroy();
+    chartAsaas = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: d.receber.map(m => {
+          const [ano, mes] = m.mes.split('-');
+          return mesesPT[+mes - 1] + '/' + ano.slice(2);
+        }),
+        datasets: [{
+          label: 'Parcelas a receber (R$)',
+          data: d.receber.map(m => m.valor),
+          backgroundColor: ['#3b82f688','#8b5cf688','#10b98188','#f59e0b88'],
+          borderColor:     ['#3b82f6','#8b5cf6','#10b981','#f59e0b'],
+          borderWidth: 2, borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+          y: { ticks: { color: '#94a3b8', callback: v => 'R$'+(v/1000).toFixed(0)+'k' }, grid: { color: '#334155' } }
+        }
+      }
+    });
+
+    // Timestamp
+    const ts = new Date(d.atualizadoEm);
+    document.getElementById('aTimestamp').textContent =
+      ts.toLocaleDateString('pt-BR') + ' ' + ts.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+
+  } catch (e) {
+    statusEl.className = 'alert vermelho';
+    statusEl.innerHTML = `🔴 Erro ao carregar Asaas: <strong>${e.message}</strong><br>
+      <span style="font-size:12px">Verifique se a variável ASAAS_API_KEY está configurada na Vercel.</span>`;
+  }
 }
 
 // =================== INIT ===================
