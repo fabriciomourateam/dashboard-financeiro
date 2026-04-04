@@ -659,16 +659,16 @@
       <div class="kpi-change up">Acima da média do mercado (30-40%)</div>
     </div>
     <div class="kpi-card verde">
-      <div class="kpi-label">CAC Real (Google)</div>
-      <div class="kpi-value" id="cacRealGoogle">R$ 23,47</div>
-      <div class="kpi-sub">CPL ÷ taxa conversão closer</div>
-      <div class="kpi-change up">R$16,43 ÷ 70% = R$23,47</div>
+      <div class="kpi-label">CAC Real Completo (Google)</div>
+      <div class="kpi-value">R$ 134</div>
+      <div class="kpi-sub">CPL ÷ SDR 17,5% ÷ closer 70%</div>
+      <div class="kpi-change up">LTV R$2.280 → ROI 17x ✅</div>
     </div>
     <div class="kpi-card vermelho">
-      <div class="kpi-label">CAC Real (Meta Lead Gen)</div>
-      <div class="kpi-value">R$ 193</div>
-      <div class="kpi-sub">R$135 CPL ÷ 70% conversão</div>
-      <div class="kpi-change down">8x mais caro que Google</div>
+      <div class="kpi-label">CAC Real Completo (Meta Lead Gen)</div>
+      <div class="kpi-value">R$ 1.102</div>
+      <div class="kpi-sub">R$135 ÷ 17,5% ÷ 70%</div>
+      <div class="kpi-change down">8x o LTV — inviável</div>
     </div>
     <div class="kpi-card verde">
       <div class="kpi-label">Melhor Campanha (Google)</div>
@@ -691,37 +691,41 @@
       ✅ <strong>Sobre a estrutura de funil:</strong> "nutricionista online" propositalmente em M.Funil e F.Funil — são estágios diferentes de intenção. F.Funil captura quem já está decidindo; M.Funil aquece quem ainda está considerando. O que precisa ser monitorado é o <strong>custo por venda real</strong> de cada funil, não apenas o CPL.
     </div>
     <table>
+      <p style="font-size:11px;color:#64748b;margin-bottom:12px">CAC Completo = CPL ÷ SDR (17,5%) ÷ Closer (70%). Custo real por aluno fechado considerando o funil inteiro.</p>
       <thead><tr>
         <th>Campanha</th>
         <th>Funil</th>
         <th class="td-right">Gasto Q1</th>
         <th class="td-right">% Budget</th>
-        <th class="td-right">Leads Q1</th>
-        <th class="td-right">CPL médio</th>
-        <th class="td-right">CAC Real (÷70%)</th>
+        <th class="td-right">CPL</th>
+        <th class="td-right">Custo/Chamada SDR</th>
+        <th class="td-right">CAC Completo</th>
+        <th class="td-right">LTV/CAC</th>
         <th class="td-right">Score</th>
         <th class="td-center">Status</th>
       </tr></thead>
       <tbody>
         <tr>
-          <td><strong>[F.FUNIL] Principal</strong><br><span style="font-size:11px;color:#64748b">"nutricionista online" — fundo</span></td>
+          <td><strong>[F.FUNIL] Principal</strong><br><span style="font-size:11px;color:#64748b">"nutricionista online" — fundo de funil</span></td>
           <td><span style="color:#10b981;font-size:11px">🔽 FUNDO</span></td>
           <td class="td-right">R$ 37.382</td>
           <td class="td-right text-yellow">53%</td>
-          <td class="td-right">~2.155</td>
           <td class="td-right">R$ 17,34</td>
-          <td class="td-right text-green">R$ 24,77</td>
-          <td class="td-right"><span id="scoreFFunil">57,5% → 79,3%</span></td>
+          <td class="td-right text-yellow">R$ 99,09</td>
+          <td class="td-right text-yellow">R$ 141,56</td>
+          <td class="td-right text-green">16,1x</td>
+          <td class="td-right">57,5%→79,3%</td>
           <td class="td-center"><span class="badge-status badge-atencao">Recuperando</span></td>
         </tr>
         <tr>
-          <td><strong>[M.FUNIL] Search</strong><br><span style="font-size:11px;color:#64748b">"nutricionista online" — meio</span></td>
+          <td><strong>[M.FUNIL] Search</strong><br><span style="font-size:11px;color:#64748b">"nutricionista online" — meio de funil</span></td>
           <td><span style="color:#3b82f6;font-size:11px">➡️ MEIO</span></td>
           <td class="td-right">R$ 17.990</td>
           <td class="td-right">25%</td>
-          <td class="td-right">~769</td>
           <td class="td-right text-red">R$ 23,39</td>
-          <td class="td-right text-yellow">R$ 33,42</td>
+          <td class="td-right text-red">R$ 133,66</td>
+          <td class="td-right text-red">R$ 190,80</td>
+          <td class="td-right text-yellow">11,9x</td>
           <td class="td-right">—</td>
           <td class="td-center"><span class="badge-status badge-atencao">Cortado -52%</span></td>
         </tr>
@@ -730,9 +734,10 @@
           <td><span style="color:#10b981;font-size:11px">🔽 FUNDO</span></td>
           <td class="td-right text-green">R$ 8.979</td>
           <td class="td-right">13%</td>
-          <td class="td-right">~761</td>
           <td class="td-right text-green">R$ 11,80</td>
-          <td class="td-right text-green">R$ 16,86</td>
+          <td class="td-right text-green">R$ 67,43</td>
+          <td class="td-right text-green fw-bold">R$ 96,33</td>
+          <td class="td-right text-green fw-bold">23,7x ✅</td>
           <td class="td-right text-green">87,5%</td>
           <td class="td-center"><span class="badge-status badge-ok">✅ Melhor</span></td>
         </tr>
@@ -741,9 +746,10 @@
           <td><span style="color:#8b5cf6;font-size:11px">🔁 RETARG.</span></td>
           <td class="td-right">R$ 3.523</td>
           <td class="td-right">5%</td>
-          <td class="td-right">~268</td>
           <td class="td-right text-green">R$ 13,15</td>
-          <td class="td-right text-green">R$ 18,79</td>
+          <td class="td-right text-green">R$ 75,14</td>
+          <td class="td-right text-green">R$ 107,34</td>
+          <td class="td-right text-green">21,2x</td>
           <td class="td-right">—</td>
           <td class="td-center"><span class="badge-status badge-ok">Eficiente</span></td>
         </tr>
@@ -752,19 +758,21 @@
           <td><span style="color:#64748b;font-size:11px">—</span></td>
           <td class="td-right">R$ 2.735</td>
           <td class="td-right">4%</td>
-          <td class="td-right">~344</td>
-          <td class="td-right">R$ 7,95</td>
-          <td class="td-right text-green">R$ 11,36</td>
+          <td class="td-right text-green">R$ 7,95</td>
+          <td class="td-right text-green">R$ 45,43</td>
+          <td class="td-right text-green">R$ 64,90</td>
+          <td class="td-right text-green">35,1x</td>
           <td class="td-right">—</td>
-          <td class="td-center"><span class="badge-status badge-ok">OK</span></td>
+          <td class="td-center"><span class="badge-status badge-ok">Ótimo</span></td>
         </tr>
         <tr style="background:#0f172a">
-          <td class="fw-bold">TOTAL Q1</td><td>—</td>
+          <td class="fw-bold">TOTAL / MÉDIA Q1</td><td>—</td>
           <td class="td-right fw-bold">R$ 70.609</td>
           <td class="td-right fw-bold">100%</td>
-          <td class="td-right fw-bold">4.297</td>
           <td class="td-right fw-bold">R$ 16,43</td>
-          <td class="td-right fw-bold text-green">R$ 23,47</td>
+          <td class="td-right fw-bold">R$ 93,89</td>
+          <td class="td-right fw-bold text-green">R$ 134,13</td>
+          <td class="td-right fw-bold text-green">17,0x</td>
           <td class="td-right">—</td><td></td>
         </tr>
       </tbody>
@@ -861,6 +869,7 @@
       <div>
         <div class="sim-row"><span class="sim-label">CPL Google (atual)</span><input class="cac-input" id="tCplGoogle" type="number" value="16.43" step="0.1" oninput="calcTrafegoCAC()"></div>
         <div class="sim-row"><span class="sim-label">CPL Meta (atual)</span><input class="cac-input" id="tCplMeta" type="number" value="135" step="1" oninput="calcTrafegoCAC()"></div>
+        <div class="sim-row"><span class="sim-label">Taxa agendamento SDR (%)</span><input class="cac-input" id="tSdr" type="number" value="17.5" step="0.5" oninput="calcTrafegoCAC()"></div>
         <div class="sim-row"><span class="sim-label">Conversão do closer (%)</span><input class="cac-input" id="tConversao" type="number" value="70" step="1" oninput="calcTrafegoCAC()"></div>
         <div class="sim-row"><span class="sim-label">Ticket médio da venda (R$)</span><input class="cac-input" id="tTicket" type="number" value="1800" step="100" oninput="calcTrafegoCAC()"></div>
         <div class="sim-row"><span class="sim-label">Budget Google mensal (R$)</span><input class="cac-input" id="tBudgetGoogle" type="number" value="24000" step="1000" oninput="calcTrafegoCAC()"></div>
@@ -1684,16 +1693,16 @@ function renderTrafegoCharts() {
     }
   });
 
-  // Chart 2: CAC real por campanha
+  // Chart 2: CAC completo por campanha (funil inteiro: lead → SDR → closer)
   const ctx2 = document.getElementById('chartCACCampanha');
   if (chartCACCampanha) chartCACCampanha.destroy();
   chartCACCampanha = new Chart(ctx2.getContext('2d'), {
     type: 'bar',
     data: {
-      labels: ['Weekend', 'Display RMKT', 'Suporte', 'F.Funil', 'M.Funil', 'Meta Lead Gen'],
+      labels: ['Suporte', 'Weekend', 'Display RMKT', 'F.Funil', 'M.Funil', 'Meta Lead Gen'],
       datasets: [{
-        label: 'CAC Real (R$)',
-        data: [16.86, 18.79, 11.36, 24.77, 33.42, 193.43],
+        label: 'CAC Completo (R$)',
+        data: [64.90, 96.33, 107.34, 141.56, 190.80, 1102],
         backgroundColor: [
           '#10b981cc', '#10b981cc', '#10b981cc',
           '#f59e0bcc', '#ef4444cc', '#7f1d1dcc'
@@ -1703,7 +1712,10 @@ function renderTrafegoCharts() {
     },
     options: {
       responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' CAC: R$ ' + ctx.raw.toFixed(0) + ' | LTV/CAC: ' + (2280/ctx.raw).toFixed(1) + 'x' } }
+      },
       scales: {
         x: { ticks: { color: '#94a3b8', callback: v => 'R$'+v }, grid: { color: '#334155' } },
         y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
@@ -1754,54 +1766,72 @@ function renderTrafegoCharts() {
 
 function calcTrafegoCAC() {
   const cplGoogle = +document.getElementById('tCplGoogle').value || 16.43;
-  const cplMeta = +document.getElementById('tCplMeta').value || 135;
-  const conversao = +document.getElementById('tConversao').value / 100 || 0.70;
-  const ticket = +document.getElementById('tTicket').value || 1800;
-  const budgetGoogle = +document.getElementById('tBudgetGoogle').value || 24000;
-  const budgetMeta = +document.getElementById('tBudgetMeta').value || 3000;
+  const cplMeta   = +document.getElementById('tCplMeta').value || 135;
+  const sdr       = (+document.getElementById('tSdr').value || 17.5) / 100;
+  const conversao = (+document.getElementById('tConversao').value || 70) / 100;
+  const ticket    = +document.getElementById('tTicket').value || 1800;
+  const budgetG   = +document.getElementById('tBudgetGoogle').value || 24000;
+  const budgetM   = +document.getElementById('tBudgetMeta').value || 3000;
 
-  const cacGoogle = cplGoogle / conversao;
-  const cacMeta = cplMeta / conversao;
+  // Funil completo: lead → SDR agenda → closer fecha
+  const custoPorChamadaG = cplGoogle / sdr;
+  const custoPorChamadaM = cplMeta   / sdr;
+  const cacG = custoPorChamadaG / conversao;
+  const cacM = custoPorChamadaM / conversao;
 
-  const leadsGoogle = budgetGoogle / cplGoogle;
-  const leadsMeta = budgetMeta / cplMeta;
-  const vendasGoogle = leadsGoogle * conversao;
-  const vendasMeta = leadsMeta * conversao;
+  // Volume mensal
+  const leadsG     = budgetG / cplGoogle;
+  const leadsM     = budgetM / cplMeta;
+  const chamadasG  = leadsG  * sdr;
+  const chamadasM  = leadsM  * sdr;
+  const vendasG    = chamadasG * conversao;
+  const vendasM    = chamadasM * conversao;
 
-  const receitaGoogle = vendasGoogle * ticket;
-  const receitaMeta = vendasMeta * ticket;
-  const roiGoogle = receitaGoogle / budgetGoogle;
-  const roiMeta = receitaMeta / budgetMeta;
+  // LTV simplificado: ticket anual + 40% renovam × 1.200
+  const ltv = ticket + 0.40 * 1200;
+  const roiLtvG = ltv / cacG;
+  const roiLtvM = ltv / cacM;
 
-  const corRoiG = roiGoogle >= 5 ? '#10b981' : roiGoogle >= 3 ? '#f59e0b' : '#ef4444';
-  const corRoiM = roiMeta >= 5 ? '#10b981' : roiMeta >= 3 ? '#f59e0b' : '#ef4444';
+  const receitaG = vendasG * ticket;
+  const receitaM = vendasM * ticket;
+  const roiG = receitaG / budgetG;
+  const roiM = receitaM / budgetM;
 
-  document.getElementById('tTrafegoResult').innerHTML = `
-    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #334155">
-      <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px">Google Ads</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><div style="font-size:10px;color:#64748b">Leads/mês</div><div style="font-size:20px;font-weight:800;color:#f1f5f9">${Math.round(leadsGoogle)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">Vendas/mês</div><div style="font-size:20px;font-weight:800;color:#10b981">${Math.round(vendasGoogle)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">CAC Real</div><div style="font-size:20px;font-weight:800;color:#3b82f6">R$ ${cacGoogle.toFixed(2)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">ROI</div><div style="font-size:20px;font-weight:800" style="color:${corRoiG}">${roiGoogle.toFixed(1)}x</div></div>
+  const corG  = cacG  < 300 ? '#10b981' : cacG  < 600 ? '#f59e0b' : '#ef4444';
+  const corM  = cacM  < 300 ? '#10b981' : cacM  < 600 ? '#f59e0b' : '#ef4444';
+  const corRG = roiLtvG >= 5 ? '#10b981' : roiLtvG >= 3 ? '#f59e0b' : '#ef4444';
+  const corRM = roiLtvM >= 5 ? '#10b981' : roiLtvM >= 3 ? '#f59e0b' : '#ef4444';
+
+  const bloco = (titulo, leads, chamadas, vendas, cpl, custCham, cac, ltvcac, roi, corCac, corLtv) => `
+    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #334155">
+      <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:10px">${titulo}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><div style="font-size:10px;color:#64748b">Leads/mês</div><div style="font-size:18px;font-weight:800;color:#f1f5f9">${Math.round(leads)}</div></div>
+        <div><div style="font-size:10px;color:#64748b">Chamadas SDR</div><div style="font-size:18px;font-weight:800;color:#3b82f6">${Math.round(chamadas)}</div></div>
+        <div><div style="font-size:10px;color:#64748b">Vendas/mês</div><div style="font-size:18px;font-weight:800;color:#10b981">${Math.round(vendas)}</div></div>
       </div>
-    </div>
-    <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #334155">
-      <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px">Meta Ads</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><div style="font-size:10px;color:#64748b">Leads/mês</div><div style="font-size:20px;font-weight:800;color:#f1f5f9">${Math.round(leadsMeta)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">Vendas/mês</div><div style="font-size:20px;font-weight:800;color:#10b981">${Math.round(vendasMeta)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">CAC Real</div><div style="font-size:20px;font-weight:800;color:#ef4444">R$ ${cacMeta.toFixed(2)}</div></div>
-        <div><div style="font-size:10px;color:#64748b">ROI</div><div style="font-size:20px;font-weight:800;color:${corRoiM}">${roiMeta.toFixed(1)}x</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div><div style="font-size:10px;color:#64748b">Custo/chamada</div><div style="font-size:16px;font-weight:800;color:#f59e0b">R$ ${custCham.toFixed(0)}</div></div>
+        <div><div style="font-size:10px;color:#64748b">CAC completo</div><div style="font-size:16px;font-weight:800;color:${corCac}">R$ ${cac.toFixed(0)}</div></div>
+        <div><div style="font-size:10px;color:#64748b">LTV/CAC</div><div style="font-size:16px;font-weight:800;color:${corLtv}">${ltvcac.toFixed(1)}x</div></div>
       </div>
-    </div>
-    <div>
+    </div>`;
+
+  document.getElementById('tTrafegoResult').innerHTML =
+    bloco('Google Ads', leadsG, chamadasG, vendasG, cplGoogle, custoPorChamadaG, cacG, roiLtvG, roiG, corG, corRG) +
+    bloco('Meta Ads (Lead Gen)', leadsM, chamadasM, vendasM, cplMeta, custoPorChamadaM, cacM, roiLtvM, roiM, corM, corRM) +
+    `<div>
       <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px">Consolidado</div>
-      <div><div style="font-size:10px;color:#64748b">Total vendas/mês</div><div style="font-size:24px;font-weight:800;color:#10b981">${Math.round(vendasGoogle+vendasMeta)} alunos</div></div>
-      <div style="margin-top:8px"><div style="font-size:10px;color:#64748b">Receita potencial</div><div style="font-size:24px;font-weight:800;color:#10b981">R$ ${Math.round(receitaGoogle+receitaMeta).toLocaleString('pt-BR')}</div></div>
-      <div style="margin-top:8px;font-size:11px;color:#64748b">Nota: receita potencial ≠ receita caixa (parcelado Asaas entra ao longo de 12 meses)</div>
-    </div>
-  `;
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="font-size:10px;color:#64748b">Total vendas/mês</div><div style="font-size:22px;font-weight:800;color:#10b981">${Math.round(vendasG+vendasM)} alunos</div></div>
+        <div><div style="font-size:10px;color:#64748b">Receita/mês (caixa)</div><div style="font-size:22px;font-weight:800;color:#10b981">R$ ${Math.round(receitaG+receitaM).toLocaleString('pt-BR')}</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#64748b;line-height:1.6">
+        LTV usado = R$ ${ltv.toLocaleString('pt-BR')} (ticket ${ticket.toLocaleString('pt-BR')} + 40% renovam × 1.200)<br>
+        Funil: lead → SDR ${(sdr*100).toFixed(1)}% agenda → closer ${(conversao*100).toFixed(0)}% fecha<br>
+        Receita ≠ caixa imediato (Asaas parcelado entra em 12 meses)
+      </div>
+    </div>`;
 }
 
 // =================== FLUXO DE CAIXA ===================
