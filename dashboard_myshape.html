@@ -215,6 +215,7 @@
   <div class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
   <div class="nav-tab" onclick="showTab('receitas')">💰 Receitas</div>
   <div class="nav-tab" onclick="showTab('despesas')">💸 Despesas</div>
+  <div class="nav-tab" onclick="showTab('fluxo')">💵 Fluxo de Caixa</div>
   <div class="nav-tab" onclick="showTab('gargalos')">🚨 Gargalos</div>
   <div class="nav-tab" onclick="showTab('plano')">✅ Plano de Ação</div>
   <div class="nav-tab" onclick="showTab('simulador')">🔮 Simulador</div>
@@ -619,6 +620,138 @@
         <div id="calcRetResult" style="margin-top:16px; background:#0f172a; border-radius:8px; padding:14px;"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- =================== ABA FLUXO DE CAIXA =================== -->
+<div id="tab-fluxo" class="tab-content">
+  <div class="section-title">💵 Fluxo de Caixa — Projeção e Análise de Recebíveis</div>
+
+  <div class="alert amarelo">
+    ⚠️ <strong>Período de transição (em andamento):</strong> Desde meados de março/2026 todas as novas vendas foram migradas para o <strong>Asaas parcelado (4% a.a.)</strong>, saindo do modelo D+1 (13,5%). Durante a transição o caixa imediato cai — mas os recebíveis futuros são muito mais saudáveis. O gráfico abaixo mostra essa dinâmica.
+  </div>
+
+  <!-- KPIs de caixa -->
+  <div class="kpi-grid">
+    <div class="kpi-card verde">
+      <div class="kpi-label">Economia de Taxa (Asaas vs D+1)</div>
+      <div class="kpi-value">9,5%</div>
+      <div class="kpi-sub">13,5% → 4,0% por venda</div>
+      <div class="kpi-change up">Em R$100k/mês = R$9.500 economizados</div>
+    </div>
+    <div class="kpi-card azul">
+      <div class="kpi-label">Recebíveis Asaas (estimativa abr-jun)</div>
+      <div class="kpi-value" id="fluxoRecFuturo">R$ 74.000</div>
+      <div class="kpi-sub">Parcelas das vendas de mar+ já no pipeline</div>
+      <div class="kpi-change neutral">Entram mensalmente</div>
+    </div>
+    <div class="kpi-card amarelo">
+      <div class="kpi-label">Risco da Transição</div>
+      <div class="kpi-value">Abr/26</div>
+      <div class="kpi-sub">Mês crítico — menos D+1 entrando, parcelado ainda acumulando</div>
+      <div class="kpi-change down">Monitorar saldo seminal</div>
+    </div>
+    <div class="kpi-card verde">
+      <div class="kpi-label">CDB Inter (Reserva)</div>
+      <div class="kpi-value">~R$5k+</div>
+      <div class="kpi-sub">Liquidez diária — segurança no transitório</div>
+      <div class="kpi-change up">Disponível a qualquer momento</div>
+    </div>
+  </div>
+
+  <!-- Calculadora de economia de taxa -->
+  <div class="table-card" style="margin-bottom:20px">
+    <div class="chart-title">Calculadora — Economia Real da Migração para Asaas</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+      <div>
+        <p style="font-size:12px; color:#64748b; margin-bottom:12px">Ajuste os valores do mês para ver a economia:</p>
+        <div class="sim-row"><span class="sim-label">Volume mensal de vendas novas (R$)</span><input class="cac-input" id="fVolume" type="number" value="85000" oninput="calcFluxo()"></div>
+        <div class="sim-row"><span class="sim-label">Taxa D+1 anterior (%)</span><input class="cac-input" id="fTaxaAntes" type="number" value="13.5" step="0.1" oninput="calcFluxo()"></div>
+        <div class="sim-row"><span class="sim-label">Taxa Asaas parcelado (%)</span><input class="cac-input" id="fTaxaDepois" type="number" value="4.0" step="0.1" oninput="calcFluxo()"></div>
+      </div>
+      <div style="background:#0f172a; border-radius:8px; padding:20px;">
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px">Taxa paga antes (D+1)</div>
+          <div style="font-size:28px; font-weight:800; color:#ef4444" id="fCustoAntes">—</div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px">Taxa no Asaas (parcelado)</div>
+          <div style="font-size:28px; font-weight:800; color:#10b981" id="fCustoDepois">—</div>
+        </div>
+        <div style="border-top:1px solid #334155; padding-top:16px">
+          <div style="font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px">Economia mensal</div>
+          <div style="font-size:36px; font-weight:800; color:#10b981" id="fEconomia">—</div>
+          <div style="font-size:13px; color:#64748b; margin-top:4px" id="fEconomiaAnual">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projeção de fluxo mensal -->
+  <div class="table-card" style="margin-bottom:20px">
+    <div class="chart-title">Projeção de Caixa — Abril a Setembro 2026</div>
+    <p style="font-size:12px; color:#64748b; margin-bottom:16px">Baseado nas vendas recentes migradas para Asaas parcelado + recorrências CelCash + Pix direto Inter. Os valores são estimativas — atualize conforme as vendas reais do Asaas.</p>
+    <table>
+      <thead><tr>
+        <th>Mês</th>
+        <th class="td-right">Recorrências (CelCash)</th>
+        <th class="td-right">Parcelas Asaas</th>
+        <th class="td-right">Pix Direto (Inter)</th>
+        <th class="td-right">Novas Vendas</th>
+        <th class="td-right">Total Entrada</th>
+        <th class="td-right">Despesas Est.</th>
+        <th class="td-right">Saldo Mensal</th>
+        <th class="td-center">Status</th>
+      </tr></thead>
+      <tbody id="tabelaFluxo"></tbody>
+    </table>
+  </div>
+
+  <!-- Gráfico de fluxo -->
+  <div class="chart-card full" style="margin-bottom:20px">
+    <div class="chart-title">Entradas vs Saídas — Projeção Mensal (R$)</div>
+    <div class="chart-container" style="height:280px"><canvas id="chartFluxo"></canvas></div>
+  </div>
+
+  <!-- Análise crítica -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px">
+    <div class="info-box vermelho">
+      <h4>🔴 Risco imediato: Abril/2026</h4>
+      <p>Com a migração para Asaas parcelado, as vendas de março não entram mais D+1. As parcelas chegam ao longo de 12 meses. <strong>Abril pode ter caixa menor</strong> do que o usual — especialmente se as despesas de tráfego continuarem em R$34k+.<br><br>
+      Ação: usar o CDB como colchão se necessário. Não aumentar tráfego em abril até confirmar o fluxo.</p>
+    </div>
+    <div class="info-box verde">
+      <h4>✅ Por que a decisão foi certa</h4>
+      <p>Em R$85k de vendas mensais, a diferença entre 13,5% e 4% é <strong>R$8.075/mês</strong> — ou <strong>R$96.900/ano</strong>. Em dois anos, é quase R$200k que ficam no seu caixa ao invés de ir para as plataformas.<br><br>
+      Além disso, o parcelado no Asaas cria fluxo previsível: você sabe exatamente o que vai entrar nos próximos 12 meses de cada venda.</p>
+    </div>
+    <div class="info-box amarelo">
+      <h4>⚠️ Distribuição vs Lucro disponível</h4>
+      <p>Em janeiro você tirou R$50k quando o lucro disponível era R$32k — ou seja, R$17.700 vieram do caixa acumulado. Com a transição para parcelado, o caixa imediato tende a ser mais apertado nos próximos 2-3 meses.<br><br>
+      <strong>Regra sugerida:</strong> só distribuir além do pró-labore (R$10k) quando o mês fechar com margem acima de 20% E a reserva de R$70k estiver formada.</p>
+    </div>
+    <div class="info-box">
+      <h4>📋 O que monitorar semanalmente</h4>
+      <p>• Extrato Asaas: parcelas previstas x realizadas no mês<br>
+      • Extrato Inter: Pix recebidos + CDB disponível<br>
+      • Total de novas vendas no mês (para estimar parcelamento futuro)<br>
+      • Saldo corrente > despesas fixas do próximo mês (R$~38k mínimo)<br><br>
+      Com esses 4 pontos monitorados semanalmente, você nunca é pego de surpresa.</p>
+    </div>
+  </div>
+
+  <!-- Distribuição inteligente -->
+  <div class="table-card">
+    <div class="chart-title">Regra de Distribuição de Lucros — Baseada no Fluxo Real</div>
+    <table>
+      <thead><tr><th>Condição</th><th>Pró-labore</th><th>Distribuição extra</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Margem mensal abaixo de 15%</td><td class="text-green">R$ 10.000</td><td class="text-red">R$ 0 — não distribui</td><td class="td-center"><span class="badge-status badge-critico">Cautela</span></td></tr>
+        <tr><td>Margem entre 15% e 25%</td><td class="text-green">R$ 10.000</td><td class="text-yellow">Até 30% do lucro excedente</td><td class="td-center"><span class="badge-status badge-atencao">Moderado</span></td></tr>
+        <tr><td>Margem acima de 25% + reserva R$70k OK</td><td class="text-green">R$ 10.000</td><td class="text-green">Até 60% do lucro excedente</td><td class="td-center"><span class="badge-status badge-ok">Saudável</span></td></tr>
+        <tr style="background:#0f172a"><td colspan="4" style="color:#64748b; font-size:12px; padding:10px 14px">Jan/26: margem 40,7% → distribuição de R$50k estava <strong style="color:#f59e0b">tecnicamente possível mas imprudente</strong> (caixa ficou negativo -R$17k). A reserva ainda não existe.</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -1186,6 +1319,103 @@ function calcRetencao() {
   `;
 }
 
+// =================== FLUXO DE CAIXA ===================
+let chartFluxo;
+
+const fluxoMeses = [
+  { mes: 'Abril/26',   recorrencia: 22000, asaas: 18000, pix: 12000, novas: 28000, despesas: 72000 },
+  { mes: 'Maio/26',    recorrencia: 22000, asaas: 24000, pix: 12000, novas: 32000, despesas: 70000 },
+  { mes: 'Junho/26',   recorrencia: 22000, asaas: 28000, pix: 12000, novas: 32000, despesas: 70000 },
+  { mes: 'Julho/26',   recorrencia: 20000, asaas: 30000, pix: 12000, novas: 35000, despesas: 70000 },
+  { mes: 'Agosto/26',  recorrencia: 20000, asaas: 32000, pix: 12000, novas: 38000, despesas: 72000 },
+  { mes: 'Setembro/26',recorrencia: 20000, asaas: 35000, pix: 12000, novas: 40000, despesas: 72000 },
+];
+
+function calcFluxo() {
+  const volume = +document.getElementById('fVolume').value || 85000;
+  const taxaAntes = +document.getElementById('fTaxaAntes').value / 100;
+  const taxaDepois = +document.getElementById('fTaxaDepois').value / 100;
+
+  const custoAntes = volume * taxaAntes;
+  const custoDepois = volume * taxaDepois;
+  const economia = custoAntes - custoDepois;
+
+  document.getElementById('fCustoAntes').textContent = fmt(custoAntes);
+  document.getElementById('fCustoDepois').textContent = fmt(custoDepois);
+  document.getElementById('fEconomia').textContent = fmt(economia);
+  document.getElementById('fEconomiaAnual').textContent = 'Economia anual: ' + fmt(economia * 12) + ' (se mantiver esse volume)';
+  document.getElementById('fluxoRecFuturo').textContent = fmt(fluxoMeses.slice(0,3).reduce((a,b)=>a+b.asaas,0));
+
+  renderTabelaFluxo();
+  renderChartFluxo();
+}
+
+function renderTabelaFluxo() {
+  const tbody = document.getElementById('tabelaFluxo');
+  if (!tbody) return;
+  let saldoAcumulado = 5000; // reserva CDB como ponto de partida
+  tbody.innerHTML = fluxoMeses.map((m, i) => {
+    const total = m.recorrencia + m.asaas + m.pix + m.novas;
+    const saldo = total - m.despesas;
+    saldoAcumulado += saldo;
+    const cor = saldo >= 0 ? 'text-green' : 'text-red';
+    const badge = saldo >= 15000 ? '<span class="badge-status badge-ok">Saudável</span>'
+                : saldo >= 0    ? '<span class="badge-status badge-atencao">Atenção</span>'
+                                : '<span class="badge-status badge-critico">Crítico</span>';
+    const isFirst = i === 0;
+    return `<tr ${isFirst ? 'style="background:#1a2035"' : ''}>
+      <td><strong>${m.mes}</strong>${isFirst ? ' <span style="font-size:10px;color:#f59e0b">⚠️ Transição</span>' : ''}</td>
+      <td class="td-right">${fmt(m.recorrencia)}</td>
+      <td class="td-right">${fmt(m.asaas)}</td>
+      <td class="td-right">${fmt(m.pix)}</td>
+      <td class="td-right">${fmt(m.novas)}</td>
+      <td class="td-right fw-bold">${fmt(total)}</td>
+      <td class="td-right text-red">${fmt(m.despesas)}</td>
+      <td class="td-right fw-bold ${cor}">${fmt(saldo)}</td>
+      <td class="td-center">${badge}</td>
+    </tr>`;
+  }).join('') + `<tr style="background:#0f172a">
+    <td class="fw-bold">TOTAL / MÉD.</td>
+    <td class="td-right">${fmt(fluxoMeses.reduce((a,b)=>a+b.recorrencia,0)/6)}</td>
+    <td class="td-right">${fmt(fluxoMeses.reduce((a,b)=>a+b.asaas,0)/6)}</td>
+    <td class="td-right">${fmt(fluxoMeses.reduce((a,b)=>a+b.pix,0)/6)}</td>
+    <td class="td-right">${fmt(fluxoMeses.reduce((a,b)=>a+b.novas,0)/6)}</td>
+    <td class="td-right fw-bold text-green">${fmt(fluxoMeses.reduce((a,b)=>a+(b.recorrencia+b.asaas+b.pix+b.novas),0)/6)}</td>
+    <td class="td-right fw-bold text-red">${fmt(fluxoMeses.reduce((a,b)=>a+b.despesas,0)/6)}</td>
+    <td class="td-right fw-bold text-green">${fmt(fluxoMeses.reduce((a,b)=>a+(b.recorrencia+b.asaas+b.pix+b.novas-b.despesas),0)/6)}</td>
+    <td></td>
+  </tr>`;
+}
+
+function renderChartFluxo() {
+  const ctx = document.getElementById('chartFluxo');
+  if (!ctx) return;
+  if (chartFluxo) chartFluxo.destroy();
+  const labels = fluxoMeses.map(m => m.mes);
+  const entradas = fluxoMeses.map(m => m.recorrencia + m.asaas + m.pix + m.novas);
+  const despesas = fluxoMeses.map(m => m.despesas);
+  const saldos = fluxoMeses.map(m => (m.recorrencia + m.asaas + m.pix + m.novas) - m.despesas);
+  chartFluxo = new Chart(ctx.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Entradas', data: entradas, backgroundColor: '#10b98188', borderColor: '#10b981', borderWidth: 2 },
+        { label: 'Despesas', data: despesas, backgroundColor: '#ef444488', borderColor: '#ef4444', borderWidth: 2 },
+        { type: 'line', label: 'Saldo Mensal', data: saldos, borderColor: '#3b82f6', backgroundColor: '#3b82f622', tension: 0.4, fill: true, yAxisID: 'y' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8' } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+        y: { ticks: { color: '#94a3b8', callback: v => 'R$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#334155' } }
+      }
+    }
+  });
+}
+
 // =================== INIT ===================
 renderDashboard();
 renderReceitasMes('jan');
@@ -1196,6 +1426,7 @@ calcSim();
 calcCAC();
 calcLTV();
 calcRetencao();
+calcFluxo();
 </script>
 </body>
 </html>
