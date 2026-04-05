@@ -9,6 +9,11 @@ async function asaas(path) {
   return res.json();
 }
 
+// Soma o campo value de todos os registros retornados
+function somarValores(resp) {
+  return (resp.data || []).reduce((acc, p) => acc + (p.value || 0), 0);
+}
+
 function hoje() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -43,55 +48,47 @@ export default async function handler(req, res) {
       // 1. Saldo atual
       asaas('/finance/balance'),
 
-      // 2. Total recebido no mês atual
-      asaas(`/payments?status=RECEIVED&paymentDate[ge]=${primeiroDia(0)}&paymentDate[le]=${ultimoDia(0)}&limit=1`),
+      // 2. Recebido no mês atual — limit=500 para somar todos os valores
+      asaas(`/payments?status=RECEIVED&paymentDate[ge]=${primeiroDia(0)}&paymentDate[le]=${ultimoDia(0)}&limit=500`),
 
-      // 3. Parcelas a receber — mês atual (pendentes)
-      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(0)}&dueDate[le]=${ultimoDia(0)}&limit=1`),
+      // 3. Parcelas a receber — mês atual
+      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(0)}&dueDate[le]=${ultimoDia(0)}&limit=500`),
 
       // 4. Parcelas a receber — próximo mês
-      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(1)}&dueDate[le]=${ultimoDia(1)}&limit=1`),
+      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(1)}&dueDate[le]=${ultimoDia(1)}&limit=500`),
 
       // 5. Parcelas a receber — mês +2
-      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(2)}&dueDate[le]=${ultimoDia(2)}&limit=1`),
+      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(2)}&dueDate[le]=${ultimoDia(2)}&limit=500`),
 
       // 6. Parcelas a receber — mês +3
-      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(3)}&dueDate[le]=${ultimoDia(3)}&limit=1`),
+      asaas(`/payments?status=PENDING&dueDate[ge]=${primeiroDia(3)}&dueDate[le]=${ultimoDia(3)}&limit=500`),
 
       // 7. Cobranças vencidas / inadimplentes
-      asaas(`/payments?status=OVERDUE&dueDate[le]=${hoje()}&limit=1`),
+      asaas(`/payments?status=OVERDUE&dueDate[le]=${hoje()}&limit=500`),
 
       // 8. Cobranças ativas (PENDING futuras)
-      asaas(`/payments?status=PENDING&dueDate[ge]=${hoje()}&limit=1`),
+      asaas(`/payments?status=PENDING&dueDate[ge]=${hoje()}&limit=500`),
     ]);
-
-    // Soma dos valores recebidos no mês (precisa paginar se > 100, mas o totalCount é suficiente para o valor total via stats)
-    // Usamos o totalValue dos metadados quando disponível
-    const recebidoValor   = recebidoMes.totalValue   ?? recebidoMes.totalCount * 0;
-    const vencerM0Valor   = vencerM0.totalValue       ?? 0;
-    const vencerM1Valor   = vencerM1.totalValue       ?? 0;
-    const vencerM2Valor   = vencerM2.totalValue       ?? 0;
-    const vencerM3Valor   = vencerM3.totalValue       ?? 0;
 
     res.status(200).json({
       saldo: balanceData.balance ?? 0,
       recebidoMes: {
-        valor: recebidoValor,
+        valor: somarValores(recebidoMes),
         count: recebidoMes.totalCount ?? 0,
       },
       receber: [
-        { mes: primeiroDia(0).slice(0, 7), valor: vencerM0Valor, count: vencerM0.totalCount ?? 0 },
-        { mes: primeiroDia(1).slice(0, 7), valor: vencerM1Valor, count: vencerM1.totalCount ?? 0 },
-        { mes: primeiroDia(2).slice(0, 7), valor: vencerM2Valor, count: vencerM2.totalCount ?? 0 },
-        { mes: primeiroDia(3).slice(0, 7), valor: vencerM3Valor, count: vencerM3.totalCount ?? 0 },
+        { mes: primeiroDia(0).slice(0, 7), valor: somarValores(vencerM0), count: vencerM0.totalCount ?? 0 },
+        { mes: primeiroDia(1).slice(0, 7), valor: somarValores(vencerM1), count: vencerM1.totalCount ?? 0 },
+        { mes: primeiroDia(2).slice(0, 7), valor: somarValores(vencerM2), count: vencerM2.totalCount ?? 0 },
+        { mes: primeiroDia(3).slice(0, 7), valor: somarValores(vencerM3), count: vencerM3.totalCount ?? 0 },
       ],
       inadimplencia: {
-        valor: inadimplentes.totalValue ?? 0,
+        valor: somarValores(inadimplentes),
         count: inadimplentes.totalCount ?? 0,
       },
       ativas: {
         count: ativas.totalCount ?? 0,
-        valor: ativas.totalValue ?? 0,
+        valor: somarValores(ativas),
       },
       atualizadoEm: new Date().toISOString(),
     });
