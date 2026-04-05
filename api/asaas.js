@@ -47,7 +47,7 @@ function ultimoDia(offset = 0) {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=300'); // cache 5 min
+  res.setHeader('Cache-Control', 's-maxage=3600); // cache 1 hora
 
   if (!KEY) return res.status(500).json({ error: 'ASAAS_API_KEY não configurada' });
 
