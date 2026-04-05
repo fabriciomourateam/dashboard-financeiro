@@ -238,6 +238,7 @@
   <!-- KPIs principais -->
   <div class="section-title">📊 Indicadores do Mês Selecionado</div>
   <div class="kpi-grid" id="kpiGrid"></div>
+  <div id="asaasSaldoLive" style="display:none;margin-bottom:16px"></div>
 
   <!-- Charts -->
   <div class="charts-grid">
@@ -277,6 +278,7 @@
   </div>
 
   <div class="kpi-grid" id="kpiReceitas"></div>
+  <div id="receitasAsaasLive" style="display:none;margin-bottom:16px"></div>
 
   <div class="table-card">
     <div class="chart-title">Receita por Plataforma de Cobrança (R$)</div>
@@ -1227,6 +1229,7 @@ dados.q1 = {
 
 let mesSelecionado = 'mar';
 let chartRecDesp, chartMargem, chartDesp, chartPlat, chartHistorico;
+let asaasData = null;
 
 const fmt = v => v == null ? '—' : 'R$ ' + Math.round(v).toLocaleString('pt-BR');
 const fmtPct = v => (v * 100).toFixed(1) + '%';
@@ -2008,7 +2011,7 @@ function renderTabelaFluxo() {
     return `<tr ${isFirst ? 'style="background:#1a2035"' : ''}>
       <td><strong>${m.mes}</strong>${isFirst ? ' <span style="font-size:10px;color:#f59e0b">⚠️ Transição</span>' : ''}</td>
       <td class="td-right">${fmt(m.recorrencia)}</td>
-      <td class="td-right">${fmt(m.asaas)}</td>
+      <td class="td-right">${fmt(m.asaas)}${m.asaasLive ? ' <span style="font-size:9px;background:#0d3321;color:#10b981;padding:1px 5px;border-radius:4px">ao vivo</span>' : ' <span style="font-size:9px;background:#1e293b;color:#64748b;padding:1px 5px;border-radius:4px">est.</span>'}</td>
       <td class="td-right">${fmt(m.pix)}</td>
       <td class="td-right">${fmt(m.novas)}</td>
       <td class="td-right fw-bold">${fmt(total)}</td>
@@ -2058,6 +2061,92 @@ function renderChartFluxo() {
   });
 }
 
+// =================== ASAAS INTEGRAÇÃO GLOBAL ===================
+async function initAsaas() {
+  try {
+    const res = await fetch('/api/asaas');
+    if (!res.ok) return;
+    const d = await res.json();
+    if (d.error) return;
+    asaasData = d;
+    atualizarFluxoComAsaas();
+    atualizarDashboardComAsaas();
+    atualizarReceitasComAsaas();
+  } catch (e) {
+    // Falha silenciosa — dado ao vivo é opcional
+  }
+}
+
+function atualizarFluxoComAsaas() {
+  if (!asaasData) return;
+  asaasData.receber.forEach((m, i) => {
+    if (i < fluxoMeses.length) {
+      fluxoMeses[i].asaas = m.valor;
+      fluxoMeses[i].asaasLive = true;
+    }
+  });
+  const el = document.getElementById('fluxoRecFuturo');
+  if (el) el.textContent = fmt(fluxoMeses.slice(0, 3).reduce((a, b) => a + b.asaas, 0));
+  if (document.getElementById('tab-fluxo').classList.contains('active')) {
+    renderTabelaFluxo();
+    renderChartFluxo();
+  }
+}
+
+function atualizarDashboardComAsaas() {
+  if (!asaasData) return;
+  const d = asaasData;
+  const el = document.getElementById('asaasSaldoLive');
+  if (!el) return;
+  el.style.display = '';
+  const now = new Date();
+  const nomeMes = mesesPT[now.getMonth()] + '/' + String(now.getFullYear()).slice(2);
+  const totalPipeline = d.receber.reduce((a, m) => a + m.valor, 0);
+  const totalCount = d.receber.reduce((a, m) => a + m.count, 0);
+  el.innerHTML = `
+    <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">🏦 Asaas — Dados ao Vivo</div>
+    <div class="kpi-grid" style="margin-bottom:0">
+      <div class="kpi-card azul">
+        <div class="kpi-label">Saldo Disponível</div>
+        <div class="kpi-value" style="font-size:22px">${fmt(d.saldo)}</div>
+        <div class="kpi-sub">Atualizado agora</div>
+      </div>
+      <div class="kpi-card verde">
+        <div class="kpi-label">Recebido em ${nomeMes}</div>
+        <div class="kpi-value" style="font-size:22px">${fmt(d.recebidoMes.valor)}</div>
+        <div class="kpi-sub">${d.recebidoMes.count} pagamentos</div>
+      </div>
+      <div class="kpi-card ${d.inadimplencia.count > 0 ? 'vermelho' : 'verde'}">
+        <div class="kpi-label">Inadimplência</div>
+        <div class="kpi-value" style="font-size:22px">${fmt(d.inadimplencia.valor)}</div>
+        <div class="kpi-sub">${d.inadimplencia.count} cobranças vencidas</div>
+      </div>
+      <div class="kpi-card amarelo">
+        <div class="kpi-label">Pipeline Próx. 4 Meses</div>
+        <div class="kpi-value" style="font-size:22px">${fmt(totalPipeline)}</div>
+        <div class="kpi-sub">${totalCount} cobranças pendentes</div>
+      </div>
+    </div>`;
+}
+
+function atualizarReceitasComAsaas() {
+  if (!asaasData) return;
+  const d = asaasData;
+  const el = document.getElementById('receitasAsaasLive');
+  if (!el) return;
+  el.style.display = '';
+  const now = new Date();
+  const nomeMes = mesesPT[now.getMonth()] + '/' + String(now.getFullYear()).slice(2);
+  el.innerHTML = `
+    <div class="alert verde" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <span>🟢 <strong>Asaas ao vivo — ${nomeMes}:</strong>
+        Recebido: <strong>${fmt(d.recebidoMes.valor)}</strong> (${d.recebidoMes.count} pagamentos) &nbsp;|&nbsp;
+        A receber (mês corrente): <strong>${fmt(d.receber[0]?.valor ?? 0)}</strong> (${d.receber[0]?.count ?? 0} cobranças) &nbsp;|&nbsp;
+        Inadimplência: <strong style="color:${d.inadimplencia.count > 0 ? '#ef4444' : '#10b981'}">${fmt(d.inadimplencia.valor)}</strong>
+      </span>
+    </div>`;
+}
+
 // =================== ASAAS LIVE ===================
 let chartAsaas;
 const mesesPT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -2070,10 +2159,17 @@ function toggleInad() {
 async function carregarAsaas() {
   const statusEl = document.getElementById('asaasStatus');
   try {
-    const res = await fetch('/api/asaas');
-    if (!res.ok) throw new Error(`Erro ${res.status}`);
-    const d = await res.json();
-    if (d.error) throw new Error(d.error);
+    if (!asaasData) {
+      const res = await fetch('/api/asaas');
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
+      const d = await res.json();
+      if (d.error) throw new Error(d.error);
+      asaasData = d;
+      atualizarFluxoComAsaas();
+      atualizarDashboardComAsaas();
+      atualizarReceitasComAsaas();
+    }
+    const d = asaasData;
 
     // Status
     statusEl.style.display = 'none';
@@ -2152,6 +2248,7 @@ async function carregarAsaas() {
 // =================== INIT ===================
 renderDashboard();
 renderReceitasMes('jan');
+initAsaas();
 renderDespesasMes('jan');
 renderGargalos();
 renderPlano();
